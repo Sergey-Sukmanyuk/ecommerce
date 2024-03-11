@@ -4,6 +4,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Rating from "../rating/Rating";
 
+
 const Product = ({ product }) => {
   return (
     <Card>
@@ -19,7 +20,9 @@ const Product = ({ product }) => {
           <span className="currency-symbol">$</span>
           {product.price}
         </Card.Text>
-        <Button className="btn-primary">Add to cart</Button>
+        <Button className="btn-primary">
+          Add to cart
+        </Button>
       </Card.Body>
     </Card>
   );
