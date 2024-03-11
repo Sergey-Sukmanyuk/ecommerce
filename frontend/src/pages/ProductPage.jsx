@@ -1,7 +1,9 @@
 import { useReducer, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet-async";
+import { useContext } from "react";
+import { Store } from "../store";
 
 import "./productPage.css";
 
@@ -12,6 +14,10 @@ import ListGroup from "react-bootstrap/ListGroup";
 import Card from "react-bootstrap/Card";
 import Badge from "react-bootstrap/esm/Badge";
 import Button from "react-bootstrap/esm/Button";
+import Loader from "../components/loader/Loader";
+
+import MessageBox from "../components/message/MessageBox";
+import { getError } from "../utils";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -27,6 +33,7 @@ const reducer = (state, action) => {
 };
 
 const ProductPage = () => {
+  const navigate = useNavigate();
   const params = useParams();
   const { slug } = params;
 
@@ -36,6 +43,21 @@ const ProductPage = () => {
     error: "",
   });
 
+  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const { cart } = state;
+
+  const addToCartHandler = async () => {
+    const existItem = cart.cartItems.find((x) => x._id === product._id);
+    const qty = existItem ? existItem.qty + 1 : 1;
+    const { data } = await axios.get(`/api/products/${product._id}`);
+    if (data.countInStock < qty) {
+      window.alert("Sorry. Product is out of stock");
+      return;
+    }
+    ctxDispatch({ type: "CART_ADD_ITEM", payload: { ...product, qty } });
+    navigate("/cart");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: "FETCH_REQUEST" });
@@ -43,7 +65,7 @@ const ProductPage = () => {
         const result = await axios.get(`/api/products/slug/${slug}`);
         dispatch({ type: "FETCH_SUCCESS", payload: result.data });
       } catch (error) {
-        dispatch({ type: "FATCH_FAIL", payload: error.message });
+        dispatch({ type: "FATCH_FAIL", payload: getError(error) });
       }
     };
     fetchData();
@@ -55,9 +77,9 @@ const ProductPage = () => {
         <title>{product.name}</title>
       </Helmet>
       {loading ? (
-        <div>Loading...</div>
+        <Loader />
       ) : error ? (
-        <div> Oops! Something went wrong. Error: {error} </div>
+        <MessageBox variant="danger">{error}</MessageBox>
       ) : (
         <div>
           <Row>
@@ -111,7 +133,9 @@ const ProductPage = () => {
                     {product.countInStock > 0 && (
                       <ListGroup.Item>
                         <div className="d-grid">
-                          <Button variant="primary">Add to Cart </Button>
+                          <Button onClick={addToCartHandler} variant="primary">
+                            Add to Cart
+                          </Button>
                         </div>
                       </ListGroup.Item>
                     )}

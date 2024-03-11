@@ -42,3 +42,15 @@ main {
 .rating span {
   color: #ffc000;
 }
+
+.img-thumbnail {
+  height: 80px;
+}
+
+.cart-qty {
+  padding: 0 10px;
+}
+
+.subtotal span {
+  padding: 0.5rem;
+}

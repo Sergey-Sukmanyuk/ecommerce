@@ -7,6 +7,8 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 
 import Product from "../components/product/Product";
+import Loader from "../components/loader/Loader";
+import MessageBox from "../components/message/MessageBox";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -40,8 +42,6 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  const loader = <div>Loading...</div>;
-  const errorMessage = <div> Oops! Something went wrong. Error: {error} </div>;
   const prductList = products?.map((product) => (
     <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
       <Product product={product} />
@@ -55,7 +55,15 @@ const HomePage = () => {
       </Helmet>
       <h1>Featured products</h1>
       <div className="products">
-        <Row>{loading ? loader : error ? errorMessage : prductList}</Row>
+        <Row>
+          {loading ? (
+            <Loader />
+          ) : error ? (
+            <MessageBox variant="danger">{error}</MessageBox>
+          ) : (
+            prductList
+          )}
+        </Row>
       </div>
     </>
   );
